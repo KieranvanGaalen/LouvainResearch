@@ -1,10 +1,9 @@
 import matplotlib.pyplot as pp
 import networkx as nx
+import math
+from Louvain import *
 
-fastGNPNetwork = nx.fast_gnp_random_graph(100, 0.05)
+n = 100
 
-print(fastGNPNetwork.degree[0])
-
-nx.draw(fastGNPNetwork, node_color=['blue'] + ['red'] * (99), with_labels=True)
-
-pp.show()
+fastGNPNetwork = nx.fast_gnp_random_graph(n, 0.01)
+print(louvain_getCommunities(fastGNPNetwork))
