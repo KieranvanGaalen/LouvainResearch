@@ -8,9 +8,11 @@ def louvain_getCommunities(G : nx.Graph) -> list[int] :
         for node in G.nodes:
             communities.append(node)
         start_mod = 0 # Calculate starting modularity here magically
+        nodes = G.nodes
         while moved:
             moved = False
-            for node in G.nodes(data=True): # This must be in a random order somehow
+            nodes.shuffle()
+            for node in nodes:
                 best_move = -1
                 best_increase = -1
                 for neighbor in G.neighbors(node):
@@ -26,4 +28,5 @@ def louvain_getCommunities(G : nx.Graph) -> list[int] :
         if (end_mod < start_mod):
             break
         # Create new G and new communities list with every community being a single node
+        # New community list may require rework of community list structure
     return communities
