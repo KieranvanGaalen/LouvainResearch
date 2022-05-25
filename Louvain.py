@@ -1,7 +1,29 @@
 import networkx as nx
 
-def louvain_getCommunities(G : nx.Graph) -> list[list[int]] : 
+def louvain_getCommunities(G : nx.Graph) -> list[int] : 
     communities = []
-    for node in G.nodes:
-        communities.append([node])
+    moved = True
+
+    while True:
+        for node in G.nodes:
+            communities.append(node)
+        start_mod = 0 # Calculate starting modularity here magically
+        while moved:
+            moved = False
+            for node in G.nodes(data=True): # This must be in a random order somehow
+                best_move = -1
+                best_increase = -1
+                for neighbor in G.neighbors(node):
+                    if communities[node] != communities[neighbor]: # Node may be moved to neighbor.
+                        # Do some magic here to check if the node must be moved with heuristics
+                        if True: # If may be moved placeholder.
+                            best_move = communities[neighbor]
+                            best_increase = 1
+                if (best_increase > 0):
+                    communities[node] = best_move
+                    moved = True
+        end_mod = 1 # Calculate final modularity placeholder
+        if (end_mod < start_mod):
+            break
+        # Create new G and new communities list with every community being a single node
     return communities
