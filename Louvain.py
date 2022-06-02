@@ -39,7 +39,7 @@ def combineDicts(commToNodes : dict, newCommToNodes) -> dict :
     for comm in newCommToNodes:
         newNodes = []
         for node in newCommToNodes[comm]:
-            newNodes.append(commToNodes[node])
+            newNodes.extend(commToNodes[node])
         newCommToNodes[comm] = newNodes
     return newCommToNodes
 
