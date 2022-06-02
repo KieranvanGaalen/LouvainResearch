@@ -57,6 +57,6 @@ def combineCommunities(G : nx.Graph, communities : Dict[int, List[int]])  ->  nx
     for comm in communities:
         nodes = communities[comm]
         for i in range(1,len(nodes)):
-            newGraph = nx.contracted_nodes(newGraph, nodes[0], nodes[i + 1], False, False)
+            newGraph = nx.contracted_nodes(newGraph, nodes[0], nodes[i], False, False)
         renameDict[nodes[0]] = comm
     return nx.relabel_nodes(newGraph, renameDict, False)
