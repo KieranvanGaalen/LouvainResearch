@@ -6,10 +6,9 @@ def louvain_getCommunities(G : nx.Graph, nodesToCommunities : Dict[int, int] = {
     for node in G.nodes:
         nodesToCommunities[node] = node
         communitiesToNodes[node] = [node]
-    start_mod = 0 # Calculate starting modularity here magically
     nodes = list(G.nodes)
-    everMoved = False
     moved = True
+    totalMeasure = getTotalMeasure(G, communitiesToNodes)
     while moved:
         moved = False
         random.shuffle(nodes)
@@ -30,14 +29,15 @@ def louvain_getCommunities(G : nx.Graph, nodesToCommunities : Dict[int, int] = {
                 communitiesToNodes[best_move].append(node)
                 nodesToCommunities[node] = best_move
                 moved = True
-                everMoved = True
-    end_mod = 1 # Calculate final modularity placeholder
-    return communitiesToNodes
-    if (not everMoved):
-        return {}
-    (newNodesToCommunities, newCommunitiesToNodes) = getCommunityDicts(communitiesToNodes)
-    newCommunitiesToNodes = louvain_getCommunities(combineCommunities(G, communitiesToNodes), newNodesToCommunities, newCommunitiesToNodes)
-    return combineDicts(communitiesToNodes, newCommunitiesToNodes)
+    newTotalMeasure = getTotalMeasure(G, communitiesToNodes)
+    if (totalMeasure < newTotalMeasure):
+        (newNodesToCommunities, newCommunitiesToNodes) = getCommunityDicts(communitiesToNodes)
+        newG = combineCommunities(G, communitiesToNodes)
+        newCommunitiesToNodes = louvain_getCommunities(newG, newNodesToCommunities, newCommunitiesToNodes)
+        return combineDicts(communitiesToNodes, newCommunitiesToNodes)
+    else:
+        return communitiesToNodes
+    
 
 def combineDicts(commToNodes : dict, newCommToNodes) -> dict :
     if (newCommToNodes == {}):
@@ -110,3 +110,17 @@ def NodeOuterEdgeCount(G : nx.Graph, node : int, community : int, communitiesToN
         if nodesToCommunities[neighbour] != community:
             edgeCount += 1
     return edgeCount
+
+def getTotalMeasure(G : nx.Graph, communitiesToNodes : Dict[int, List[int]]) -> float : #total measure is modularity here
+    result = 0
+    for c in communitiesToNodes:
+        for i in communitiesToNodes[c]:
+            for j in communitiesToNodes[c]:
+                if i != j:
+                    if j in G.neighbors(i):
+                        result += 1 - (sum(1 for _ in G.neighbors(i))) * (sum(1 for _ in G.neighbors(j))) / (2 * G.number_of_edges)
+                    else:
+                        result -= (sum(1 for _ in G.neighbors(i))) * (sum(1 for _ in G.neighbors(j))) / (2 * G.number_of_edges)
+    return result / (2 * G.number_of_edges)
+                    
+        
