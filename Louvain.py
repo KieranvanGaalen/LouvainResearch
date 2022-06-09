@@ -39,9 +39,9 @@ def louvain_getCommunities(previousTotalMeasure : float, G : nx.Graph, Measure, 
                     nodesToCommunities[node] = best_move
                     movedCount += 1
                     moved = True
-            print("Moved: " + str(movedCount))
-            print("Communities: " + str(len(communitiesToNodes)))
-        print("deltaSum: " + str(deltaSum))
+            #print("Moved: " + str(movedCount))
+            #print("Communities: " + str(len(communitiesToNodes)))
+        #print("deltaSum: " + str(deltaSum))
         (newNodesToCommunities, newCommunitiesToNodes) = getCommunityDicts(communitiesToNodes)
         newG = combineCommunities(G, communitiesToNodes)
         newCommunitiesToNodes = louvain_getCommunities(totalMeasure, newG, Measure, newNodesToCommunities, newCommunitiesToNodes)

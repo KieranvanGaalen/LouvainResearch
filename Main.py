@@ -29,7 +29,15 @@ def getNodeToComm(commToNode : Dict[int, List[int]]) -> Dict[int, int]:
             nodeToComm[node] = comm
     return nodeToComm
 
-def writeLists(measureToRun, runTimes : List[float], edgeCounts : List[int], nodeCounts : List[int], groundTruths : List[float]):
+def getCommToNode(nodeToComm : Dict[int, int]) -> Dict[int, List[int]]:
+    commToNode = {}
+    for node in nodeToComm:
+        if node not in commToNode:
+            commToNode[nodeToComm[node]] = []
+        commToNode[nodeToComm[node]].append(node)
+    return commToNode
+
+def writeLists(measureToRun, runTimes : List[float], edgeCounts : List[int], nodeCounts : List[int], groundTruths : List[float], resComms : List[int], correctComms : List[int]):
     dirname = os.path.dirname(__file__)
     splitMeasure = str(measureToRun).split('\\')
     correctMeasure = splitMeasure[len(splitMeasure) - 1]
@@ -41,12 +49,10 @@ def writeLists(measureToRun, runTimes : List[float], edgeCounts : List[int], nod
         runIndices.append(str(i))
 
     with open(filepath, "w") as f:
-        writer = csv.writer(f)
-        writer.writerow(runIndices)
-        writer.writerow(["runTimes"] + [str(x) for x in runTimes])
-        writer.writerow(["edgeCounts"] + [str(x) for x in edgeCounts])
-        writer.writerow(["nodeCounts"] + [str(x) for x in nodeCounts])
-        writer.writerow(["groundTruths"] + [str(x) for x in groundTruths])
+        writer = csv.writer(f, lineterminator='\n')
+        writer.writerow([correctMeasure[0:len(correctMeasure) - 4]] + ["runTimes"] + ["edgeCounts"] + ["nodeCounts"] + ["groundTruths"] + ["resultComms"] + ["correctComms"])
+        for i in range(len(runTimes)):
+            writer.writerow([str(i)] + [str(runTimes[i])] + [str(edgeCounts[i])] + [str(nodeCounts[i])] + [str(groundTruths[i])] + [str(resComms[i])] + [str(correctComms[i])])
 
 def calculateJaccardIndex(nodesToCommunitiesTrue : Dict[int, int], nodesToCommunitiesFromAlgorithm : Dict[int, int]) -> float :
     a01 = 0
@@ -68,11 +74,12 @@ def calculateJaccardIndex(nodesToCommunitiesTrue : Dict[int, int], nodesToCommun
                     a01 += 1
     return a11 / (a11 + a01 + a10)
 
-runTimes = [] # Use this for runtime analysis
+runTimes = []
 edgeCounts = []
 nodeCounts = []
 groundTruths = []
-
+resComms = []
+correctComms = []
 
 seed = 91
 r = random.Random(seed)
@@ -87,21 +94,30 @@ for _ in range(20):
     max_community = int(0.1 * n)
     max_degree = int(0.1 * n)
     lfrGraph = nx.LFR_benchmark_graph(n, tau1, tau2, mu, average_degree=average_degree, max_community=max_community, max_degree=max_degree, seed=seed)
+
     # Get the correct communities out of graph
     correctNodeToComm = getCommDict(lfrGraph)
+
     # Get the edge and node counts out of graph
     edgeCounts.append(lfrGraph.number_of_edges())
     nodeCounts.append(lfrGraph.number_of_nodes())
     print("Starting Louvain!")
+
     # Run Louvain, and time it
     start = time.time()
     commDict = louvain_getCommunities(float('-inf'), lfrGraph.copy(), measureToRun.Measure())
     end = time.time()
+
     # Transform resulting communities into same format as correct communities
     generatedNodeToComm = getNodeToComm(commDict)
+
     # Calculate the ground truth based on jaccard index
     groundTruth = calculateJaccardIndex(correctNodeToComm, generatedNodeToComm)
+
     # Get the groundTruth and runtime
     groundTruths.append(groundTruth)
     runTimes.append(end - start)
-writeLists(measureToRun, runTimes, edgeCounts, nodeCounts, groundTruths)
+    resComms.append(len(commDict))
+    correctComms.append(len(getCommToNode(correctNodeToComm)))
+
+writeLists(measureToRun, runTimes, edgeCounts, nodeCounts, groundTruths, resComms, correctComms)
