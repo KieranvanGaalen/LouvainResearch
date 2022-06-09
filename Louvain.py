@@ -2,6 +2,8 @@ import networkx as nx
 import random
 from typing import List, Dict
 
+r = random.Random(8373) # Random seed
+
 def louvain_getCommunities(previousTotalMeasure : float, G : nx.Graph, Measure, nodesToCommunities : Dict[int, int] = {}, communitiesToNodes : Dict[int, List[int]] = {}) -> dict : 
     for node in G.nodes:
         nodesToCommunities[node] = node
@@ -14,11 +16,11 @@ def louvain_getCommunities(previousTotalMeasure : float, G : nx.Graph, Measure, 
         while moved:
             movedCount = 0
             moved = False
-            random.shuffle(nodes)
+            r.shuffle(nodes)
             i = 0
             for node in nodes:
                 i+=1
-                print(str(int(i/len(nodes)*1000)/10) + "%")
+                #print(str(int(i/len(nodes)*1000)/10) + "%")
                 best_move = 0
                 best_increase = 0
                 for neighbour in G.neighbors(node):

@@ -74,51 +74,34 @@ nodeCounts = []
 groundTruths = []
 
 
-seed = 22
-while True:
-    try:
-        random.seed(seed)
-        for _ in range(20):
-            # Create the lfr graph
-            n = random.randrange(250, 2000)
-            #print(n)
-            tau1 = 3
-            tau2 = 1.5
-            mu = random.uniform(0.03, 0.75)
-            average_degree = 20
-            max_community = int(0.1 * n)
-            max_degree = int(0.1 * n)
-            lfrGraph = nx.LFR_benchmark_graph(n, tau1, tau2, mu, average_degree=average_degree, max_community=max_community, max_degree=max_degree, seed=seed)
-        while True:
-            print(seed)
-            time.sleep(60)
-    except:
-        print(str(seed) + " failed")
-        seed += 1
-
-""""
+seed = 91
+r = random.Random(seed)
+for _ in range(20):
+    # Create the lfr graph
+    n = r.randrange(250, 2000)
+    print(n)
+    tau1 = 3
+    tau2 = 1.5
+    mu = r.uniform(0.03, 0.75)
+    average_degree = 20
+    max_community = int(0.1 * n)
+    max_degree = int(0.1 * n)
+    lfrGraph = nx.LFR_benchmark_graph(n, tau1, tau2, mu, average_degree=average_degree, max_community=max_community, max_degree=max_degree, seed=seed)
     # Get the correct communities out of graph
     correctNodeToComm = getCommDict(lfrGraph)
-
     # Get the edge and node counts out of graph
     edgeCounts.append(lfrGraph.number_of_edges())
     nodeCounts.append(lfrGraph.number_of_nodes())
-
     print("Starting Louvain!")
     # Run Louvain, and time it
     start = time.time()
     commDict = louvain_getCommunities(float('-inf'), lfrGraph.copy(), measureToRun.Measure())
     end = time.time()
-
     # Transform resulting communities into same format as correct communities
     generatedNodeToComm = getNodeToComm(commDict)
-
     # Calculate the ground truth based on jaccard index
     groundTruth = calculateJaccardIndex(correctNodeToComm, generatedNodeToComm)
-
     # Get the groundTruth and runtime
     groundTruths.append(groundTruth)
     runTimes.append(end - start)
-    
 writeLists(measureToRun, runTimes, edgeCounts, nodeCounts, groundTruths)
-"""
