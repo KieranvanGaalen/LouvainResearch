@@ -2,7 +2,7 @@ import networkx as nx
 import random
 from typing import List, Dict
 
-def louvain_getCommunities(G : nx.Graph, Measure, nodesToCommunities : Dict[int, int] = {}, communitiesToNodes : Dict[int, List[int]] = {}) -> dict : 
+def louvain_getCommunities(previousTotalMeasure : float, G : nx.Graph, Measure, nodesToCommunities : Dict[int, int] = {}, communitiesToNodes : Dict[int, List[int]] = {}) -> dict : 
     for node in G.nodes:
         nodesToCommunities[node] = node
         communitiesToNodes[node] = [node]
@@ -10,37 +10,35 @@ def louvain_getCommunities(G : nx.Graph, Measure, nodesToCommunities : Dict[int,
     moved = True
     totalMeasure = Measure.getTotalMeasure(G, communitiesToNodes, nodesToCommunities)
     deltaSum = 0
-    while moved:
-        moved = False
-        random.shuffle(nodes)
-        for node in nodes:
-            best_move = 0
-            best_increase = 0
-            for neighbour in G.neighbors(node):
-                neighbourcomm = nodesToCommunities[neighbour]
-                if nodesToCommunities[node] != neighbourcomm: # Node may be moved to neighbor.
-                    delta = Measure.getDelta(G, node, neighbourcomm, communitiesToNodes, nodesToCommunities)
-                    if delta > best_increase: # If may be moved placeholder.
-                        best_move = nodesToCommunities[neighbour]
-                        best_increase = delta
-            if (best_increase > 0):
-                deltaSum += best_increase
-                communitiesToNodes[nodesToCommunities[node]].remove(node)
-                if len(communitiesToNodes[nodesToCommunities[node]]) == 0:
-                    communitiesToNodes.pop(nodesToCommunities[node], None)
-                communitiesToNodes[best_move].append(node)
-                nodesToCommunities[node] = best_move
-                moved = True
-    newTotalMeasure = Measure.getTotalMeasure(G, communitiesToNodes, nodesToCommunities)
-    print("deltaSum: " + str(deltaSum))
-    print("totalDelta: " + str(newTotalMeasure - totalMeasure))
-    if (totalMeasure < newTotalMeasure):
+    if previousTotalMeasure < totalMeasure:
+        while moved:
+            moved = False
+            random.shuffle(nodes)
+            for node in nodes:
+                best_move = 0
+                best_increase = 0
+                for neighbour in G.neighbors(node):
+                    neighbourcomm = nodesToCommunities[neighbour]
+                    if nodesToCommunities[node] != neighbourcomm: # Node may be moved to neighbor.
+                        delta = Measure.getDelta(G, node, neighbourcomm, communitiesToNodes, nodesToCommunities)
+                        if delta > best_increase: # If may be moved placeholder.
+                            best_move = nodesToCommunities[neighbour]
+                            best_increase = delta
+                if (best_increase > 0):
+                    deltaSum += best_increase
+                    communitiesToNodes[nodesToCommunities[node]].remove(node)
+                    if len(communitiesToNodes[nodesToCommunities[node]]) == 0:
+                        communitiesToNodes.pop(nodesToCommunities[node], None)
+                    communitiesToNodes[best_move].append(node)
+                    nodesToCommunities[node] = best_move
+                    moved = True
+        print("deltaSum: " + str(deltaSum))
         (newNodesToCommunities, newCommunitiesToNodes) = getCommunityDicts(communitiesToNodes)
         newG = combineCommunities(G, communitiesToNodes)
-        newCommunitiesToNodes = louvain_getCommunities(newG, Measure, newNodesToCommunities, newCommunitiesToNodes)
+        newCommunitiesToNodes = louvain_getCommunities(totalMeasure, newG, Measure, newNodesToCommunities, newCommunitiesToNodes)
         return combineDicts(communitiesToNodes, newCommunitiesToNodes)
     else:
-        return communitiesToNodes
+        return {}
     
 
 def combineDicts(commToNodes : dict, newCommToNodes) -> dict :

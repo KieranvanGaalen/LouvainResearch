@@ -54,9 +54,8 @@ class Measure(MeasureInterface):
         for c in communitiesToNodes:
             for i in communitiesToNodes[c]:
                 for j in communitiesToNodes[c]:
-                    if i != j:
-                        if j in G.neighbors(i):
-                            result += 1 - (sum(1 for _ in G.neighbors(i))) * (sum(1 for _ in G.neighbors(j))) / (2 * G.number_of_edges)
-                        else:
-                            result -= (sum(1 for _ in G.neighbors(i))) * (sum(1 for _ in G.neighbors(j))) / (2 * G.number_of_edges)
-        return result / (2 * G.number_of_edges)
+                    if j in G.neighbors(i):
+                        result += 1 - (sum(1 for _ in G.neighbors(i))) * (sum(1 for _ in G.neighbors(j))) / (2 * G.number_of_edges())
+                    else:
+                        result -= (sum(1 for _ in G.neighbors(i))) * (sum(1 for _ in G.neighbors(j))) / (2 * G.number_of_edges())
+        return result / (2 * G.number_of_edges())

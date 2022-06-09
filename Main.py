@@ -17,15 +17,15 @@ runtimes = [] # Use this for runtime analysis
 for _ in range(10):
     sizes = [75, 75, 300] # TODO: Randomise this based on seed
     probs = [[0.25, 0.05, 0.02], [0.05, 0.35, 0.07], [0.02, 0.07, 0.40]] # TODO: Randomise this based on seed
-    stochasticGraph = nx.stochastic_block_model(sizes, probs, seed)
+    stochasticGraph = nx.stochastic_block_model(sizes, probs)
 
     start = time.time()
-    commDict = louvain_getCommunities(fastGNPNetwork.copy(), EdgeRatio.Measure())
+    commDict = louvain_getCommunities(float('-inf'), fastGNPNetwork.copy(), Modularity.Measure())
     end = time.time()
     runtimes.append(end - start)
 
     #print("runtime: " + str(end - start))
-    #print(commDict)
+    print(commDict)
     # TODO: Ground truth analysis
 
 nx.draw(fastGNPNetwork, node_color=['blue'] + ['red'] * (99), with_labels=True)
