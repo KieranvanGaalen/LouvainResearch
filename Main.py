@@ -1,54 +1,84 @@
+from uuid import getnode
 import matplotlib.pyplot as pp
 import networkx as nx
 import math
 from Louvain import *
 from Measures import EdgeRatio, Modularity
 import time
+import os
+import csv
+
+def getCommDict(G : nx.graph) -> Dict[int, int]:
+    nodeToComm = {}
+    for node in G.nodes(data=True):
+        nodeToComm[node] = node['community']
+    return nodeToComm
+
+def getNodeToComm(commToNode : Dict[int, List[int]]) -> Dict[int, int]:
+    nodeToComm = {}
+    for comm in commToNode:
+        for node in commToNode[comm]:
+            nodeToComm[node] = comm
+    return nodeToComm
+
+def writeLists(measureToRun, runTimes : List[float], edgeCounts : List[int], nodeCounts : List[int], groundTruths : List[float]):
+    dirname = os.path.dirname(__file__)
+    splitMeasure = str(measureToRun).split('\\')
+    correctMeasure = splitMeasure[len(splitMeasure) - 1]
+    correctMeasure = correctMeasure[0:len(correctMeasure) - 5] + ".csv"
+    filepath = os.path.join(dirname, str(correctMeasure))
+
+    runIndices = [correctMeasure[0:len(correctMeasure) - 4]]
+    for i in range(1, len(runTimes) + 1):
+        runIndices.append(str(i))
+
+    with open(filepath, "w") as f:
+        writer = csv.writer(f)
+        writer.writerow(runIndices)
+        writer.writerow(["runTimes"] + [str(x) for x in runTimes])
+        writer.writerow(["edgeCounts"] + [str(x) for x in edgeCounts])
+        writer.writerow(["nodeCounts"] + [str(x) for x in nodeCounts])
+        writer.writerow(["groundTruths"] + [str(x) for x in groundTruths])
+
+measureToRun = Modularity
 
 seed = 5 # TODO: Set this
 
-def getSizes(numcom : int) -> List[int]:
-    sizes = []
-    for i in range(numcom):
-        sizes.append(random.randrange(1, 100))
-    return sizes
-
-def getProbs(numcom : int) -> List[List[int]]:
-    probs = []
-    for i in range(numcom):
-        tmplist = []
-        for j in range(numcom):
-            tmplist.append(0)
-        probs.append(tmplist)
-    for i in range(numcom):
-        for j in range(i, numcom):
-            val = random.uniform(0,1)
-            probs[i][j] = val
-            probs[j][i] = val
-    return probs
-
-runtimes = [] # Use this for runtime analysis
+runTimes = [] # Use this for runtime analysis
 edgeCounts = []
 nodeCounts = []
-foundComs = []
-numcoms = []
-for _ in range(10):
-    numcom = random.randrange(1, 50)
-    sizes = getSizes(numcom)
-    probs = getProbs(numcom)
-    print(numcom)
-    print(sizes)
-    print(probs)
-    stochasticGraph = nx.stochastic_block_model(sizes, probs)
+groundTruths = []
 
-    numcoms.append(numcom)
-    edgeCounts.append(stochasticGraph.number_of_edges())
-    nodeCounts.append(stochasticGraph.number_of_nodes())
+for _ in range(2):
+    # Create the lfr graph
+    n = random.randrange(1, 250)
+    tau1 = random.uniform(2, 3)
+    tau2 = random.uniform(1, 2)
+    mu = random.uniform(0,0.25)
+    maxdegree = random.randrange(math.floor(n/5), n)
+    lfrGraph = nx.LFR_benchmark_graph(n, tau1, tau2, mu, min_degree=20, max_degree=maxdegree, max_iters=5000)
+
+    # Get the correct communities out of graph
+    correctNodeToComm = getCommDict(lfrGraph)
+
+    # Get the edge and node counts out of graph
+    edgeCounts.append(lfrGraph.number_of_edges())
+    nodeCounts.append(lfrGraph.number_of_nodes())
+
+
+    print("Starting Louvain!")
+    # Run Louvain, and time it
     start = time.time()
-    commDict = louvain_getCommunities(float('-inf'), stochasticGraph.copy(), EdgeRatio.Measure())
+    commDict = louvain_getCommunities(float('-inf'), lfrGraph.copy(), measureToRun.Measure())
     end = time.time()
-    runtimes.append(end - start)
-    foundComs.append(len(commDict))
+
+    # Transform resulting communities into same format as correct communities
+    generatedNodeToComm = getNodeToComm(commDict)
+
     # TODO: Ground truth analysis
+    groundTruth = 0
 
-
+    # Get the groundTruth and runtime
+    groundTruths.append(groundTruth)
+    runTimes.append(end - start)
+    # TODO: Ground truth analysis
