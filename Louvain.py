@@ -12,9 +12,13 @@ def louvain_getCommunities(previousTotalMeasure : float, G : nx.Graph, Measure, 
     deltaSum = 0
     if previousTotalMeasure < totalMeasure:
         while moved:
+            movedCount = 0
             moved = False
             random.shuffle(nodes)
+            i = 0
             for node in nodes:
+                i+=1
+                print(str(int(i/len(nodes)*1000)/10) + "%")
                 best_move = 0
                 best_increase = 0
                 for neighbour in G.neighbors(node):
@@ -31,7 +35,10 @@ def louvain_getCommunities(previousTotalMeasure : float, G : nx.Graph, Measure, 
                         communitiesToNodes.pop(nodesToCommunities[node], None)
                     communitiesToNodes[best_move].append(node)
                     nodesToCommunities[node] = best_move
+                    movedCount += 1
                     moved = True
+            print("Moved: " + str(movedCount))
+            print("Communities: " + str(len(communitiesToNodes)))
         print("deltaSum: " + str(deltaSum))
         (newNodesToCommunities, newCommunitiesToNodes) = getCommunityDicts(communitiesToNodes)
         newG = combineCommunities(G, communitiesToNodes)

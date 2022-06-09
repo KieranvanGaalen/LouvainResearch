@@ -8,10 +8,18 @@ import time
 import os
 import csv
 
+measureToRun = EdgeRatio
+seed = 15
+
 def getCommDict(G : nx.graph) -> Dict[int, int]:
     nodeToComm = {}
+    commIndex = 0
+    attr = nx.get_node_attributes(G,"community")
     for node in G.nodes(data=True):
-        nodeToComm[node] = node['community']
+        if node[0] not in nodeToComm:
+            for node2 in node[1]['community']:
+                nodeToComm[node2] = commIndex
+            commIndex += 1
     return nodeToComm
 
 def getNodeToComm(commToNode : Dict[int, List[int]]) -> Dict[int, int]:
@@ -40,50 +48,6 @@ def writeLists(measureToRun, runTimes : List[float], edgeCounts : List[int], nod
         writer.writerow(["nodeCounts"] + [str(x) for x in nodeCounts])
         writer.writerow(["groundTruths"] + [str(x) for x in groundTruths])
 
-measureToRun = Modularity
-
-seed = 5 # TODO: Set this
-
-runTimes = [] # Use this for runtime analysis
-edgeCounts = []
-nodeCounts = []
-groundTruths = []
-
-for _ in range(2):
-    # Create the lfr graph
-    n = random.randrange(1, 250)
-    tau1 = random.uniform(2, 3)
-    tau2 = random.uniform(1, 2)
-    mu = random.uniform(0,0.25)
-    maxdegree = random.randrange(math.floor(n/5), n)
-    lfrGraph = nx.LFR_benchmark_graph(n, tau1, tau2, mu, min_degree=20, max_degree=maxdegree, max_iters=5000)
-
-    # Get the correct communities out of graph
-    correctNodeToComm = getCommDict(lfrGraph)
-
-    # Get the edge and node counts out of graph
-    edgeCounts.append(lfrGraph.number_of_edges())
-    nodeCounts.append(lfrGraph.number_of_nodes())
-
-
-    print("Starting Louvain!")
-    # Run Louvain, and time it
-    start = time.time()
-    commDict = louvain_getCommunities(float('-inf'), lfrGraph.copy(), measureToRun.Measure())
-    end = time.time()
-
-    # Transform resulting communities into same format as correct communities
-    generatedNodeToComm = getNodeToComm(commDict)
-
-    # TODO: Ground truth analysis
-    groundTruth = 0
-
-    # Get the groundTruth and runtime
-    groundTruths.append(groundTruth)
-    runTimes.append(end - start)
-    # TODO: Ground truth analysis
-
-
 def calculateJaccardIndex(nodesToCommunitiesTrue : Dict[int, int], nodesToCommunitiesFromAlgorithm : Dict[int, int]) -> float :
     a01 = 0
     a10 = 0
@@ -103,3 +67,58 @@ def calculateJaccardIndex(nodesToCommunitiesTrue : Dict[int, int], nodesToCommun
                 elif c1Algo == c2Algo:
                     a01 += 1
     return a11 / (a11 + a01 + a10)
+
+runTimes = [] # Use this for runtime analysis
+edgeCounts = []
+nodeCounts = []
+groundTruths = []
+
+
+seed = 22
+while True:
+    try:
+        random.seed(seed)
+        for _ in range(20):
+            # Create the lfr graph
+            n = random.randrange(250, 2000)
+            #print(n)
+            tau1 = 3
+            tau2 = 1.5
+            mu = random.uniform(0.03, 0.75)
+            average_degree = 20
+            max_community = int(0.1 * n)
+            max_degree = int(0.1 * n)
+            lfrGraph = nx.LFR_benchmark_graph(n, tau1, tau2, mu, average_degree=average_degree, max_community=max_community, max_degree=max_degree, seed=seed)
+        while True:
+            print(seed)
+            time.sleep(60)
+    except:
+        print(str(seed) + " failed")
+        seed += 1
+
+""""
+    # Get the correct communities out of graph
+    correctNodeToComm = getCommDict(lfrGraph)
+
+    # Get the edge and node counts out of graph
+    edgeCounts.append(lfrGraph.number_of_edges())
+    nodeCounts.append(lfrGraph.number_of_nodes())
+
+    print("Starting Louvain!")
+    # Run Louvain, and time it
+    start = time.time()
+    commDict = louvain_getCommunities(float('-inf'), lfrGraph.copy(), measureToRun.Measure())
+    end = time.time()
+
+    # Transform resulting communities into same format as correct communities
+    generatedNodeToComm = getNodeToComm(commDict)
+
+    # Calculate the ground truth based on jaccard index
+    groundTruth = calculateJaccardIndex(correctNodeToComm, generatedNodeToComm)
+
+    # Get the groundTruth and runtime
+    groundTruths.append(groundTruth)
+    runTimes.append(end - start)
+    
+writeLists(measureToRun, runTimes, edgeCounts, nodeCounts, groundTruths)
+"""
