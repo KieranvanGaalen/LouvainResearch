@@ -51,4 +51,22 @@ for _ in range(10):
     foundComs.append(len(commDict))
     # TODO: Ground truth analysis
 
-
+def calculateJaccardIndex(nodesToCommunitiesTrue : Dict[int, int], nodesToCommunitiesFromAlgorithm : Dict[int, int]) -> float :
+    a01 = 0
+    a10 = 0
+    a11 = 0
+    for key1 in nodesToCommunitiesTrue:
+        for key2 in nodesToCommunitiesTrue:
+            if key1 != key2:
+                c1True = nodesToCommunitiesTrue[key1]
+                c2True = nodesToCommunitiesTrue[key2]
+                c1Algo = nodesToCommunitiesFromAlgorithm[key1]
+                c2Algo = nodesToCommunitiesFromAlgorithm[key2]
+                if c1True == c2True:
+                    if c1Algo == c2Algo:
+                        a11 += 1
+                    else:
+                        a10 += 1
+                elif c1Algo == c2Algo:
+                    a01 += 1
+    return a11 / (a11 + a01 + a10)
