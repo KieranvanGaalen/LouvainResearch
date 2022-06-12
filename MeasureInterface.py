@@ -2,6 +2,8 @@ import networkx as nx
 from typing import List, Dict
 
 class MeasureInterface:
+    threshold = 0
+
     def __init__(self): 
         pass
 

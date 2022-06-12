@@ -4,7 +4,6 @@ from typing import List, Dict
 from MeasureInterface import MeasureInterface
 
 class Measure(MeasureInterface):
-
     def getDelta(self, G : nx.Graph, node : int, newCommunity : int, communitiesToNodes : Dict[int, List[int]], nodesToCommunities : Dict[int, int]) -> float :
         communityInnerEdgeCount = self.communityInnerEdgeCount(G, newCommunity, communitiesToNodes, nodesToCommunities)
         communityOuterEdgeCount = self.communityOuterEdgeCount(G, newCommunity, communitiesToNodes, nodesToCommunities)
@@ -63,9 +62,9 @@ class Measure(MeasureInterface):
     def getTotalMeasure(self, G : nx.Graph, communitiesToNodes : Dict[int, List[int]], nodesToCommunities : Dict[int, int]) -> float : #total measure is modularity here
         result = 0
         for c in communitiesToNodes:
+            print(c)
             for i in communitiesToNodes[c]:
                 for j in communitiesToNodes[c]:
-                    print(str(c) + ", " + str(i) + ", " + str(j))
                     if j in G.neighbors(i):
                         result += 1 - (sum(1 for _ in G.neighbors(i))) * (sum(1 for _ in G.neighbors(j))) / (2 * G.number_of_edges())
                     else:
