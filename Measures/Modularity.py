@@ -21,7 +21,7 @@ class Measure(MeasureInterface):
         nodeInnerEdgeCount = self.nodeInnerEdgeCount(G, node, newCommunity, communitiesToNodes, nodesToCommunities)
         nodeOuterEdgeCount = self.nodeOuterEdgeCount(G, node, newCommunity, communitiesToNodes, nodesToCommunities)
 
-        return nodeInnerEdgeCount - (((communityInnerEdgeCount + communityOuterEdgeCount) * (nodeInnerEdgeCount + nodeOuterEdgeCount)) / (2 * len(G.edges)))
+        return nodeInnerEdgeCount - (((communityInnerEdgeCount + communityOuterEdgeCount) * (nodeInnerEdgeCount + nodeOuterEdgeCount)) / (2 * G.number_of_edges()))
 
     def communityInnerEdgeCount(self, G : nx.Graph, community : int, communitiesToNodes : Dict[int, List[int]], nodesToCommunities : Dict[int, int]) -> int :
         nodes = communitiesToNodes[community]
