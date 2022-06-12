@@ -105,7 +105,7 @@ for _ in range(20):
 
     # Run Louvain, and time it
     start = time.time()
-    commDict = louvain_getCommunities(float('-inf'), lfrGraph.copy(), measureToRun.Measure())
+    commDict = louvain_getCommunities(lfrGraph.copy(), float('-inf'), measureToRun.Measure(), threshold=measureToRun.Measure().threshold)
     end = time.time()
 
     # Transform resulting communities into same format as correct communities

@@ -4,23 +4,30 @@ from typing import List, Dict
 
 r = random.Random(8373) # Random seed
 
-def louvain_getCommunities(previousTotalMeasure : float, G : nx.Graph, Measure, nodesToCommunities : Dict[int, int] = {}, communitiesToNodes : Dict[int, List[int]] = {}) -> dict : 
+def louvain_getCommunities(G : nx.Graph, previousTotalMeasure : float, Measure, threshold : float) -> dict : 
+    nodesToCommunities = {}
+    communitiesToNodes = {}
     for node in G.nodes:
         nodesToCommunities[node] = node
         communitiesToNodes[node] = [node]
     nodes = list(G.nodes)
     moved = True
-    totalMeasure = Measure.getTotalMeasure(G, communitiesToNodes, nodesToCommunities)
+    startMeasure  = Measure.getTotalMeasure(G, communitiesToNodes, nodesToCommunities)
+    modNew = startMeasure
+    mod = -99999999999 # Will always get into while loop
     deltaSum = 0
-    if previousTotalMeasure < totalMeasure:
-        while moved:
+    if previousTotalMeasure < modNew:
+        while moved and modNew - mod > threshold:
+            mod = modNew
             movedCount = 0
             moved = False
             r.shuffle(nodes)
             i = 0
             for node in nodes:
                 i+=1
-                #print(str(int(i/len(nodes)*1000)/10) + "%")
+                #prct = int(i/len(nodes)*1000)
+                #if (prct % 10 == 0):
+                #    print(str(int(prct/10)) + "%")
                 best_move = 0
                 best_increase = 0
                 for neighbour in G.neighbors(node):
@@ -39,12 +46,14 @@ def louvain_getCommunities(previousTotalMeasure : float, G : nx.Graph, Measure, 
                     nodesToCommunities[node] = best_move
                     movedCount += 1
                     moved = True
-            #print("Moved: " + str(movedCount))
-            #print("Communities: " + str(len(communitiesToNodes)))
+            modNew = Measure.getTotalMeasure(G, communitiesToNodes, nodesToCommunities)
+            print("mod delta: " + str(modNew - mod))
+            print("Moved: " + str(movedCount))
+            print("Communities: " + str(len(communitiesToNodes)))
         #print("deltaSum: " + str(deltaSum))
         (newNodesToCommunities, newCommunitiesToNodes) = getCommunityDicts(communitiesToNodes)
         newG = combineCommunities(G, communitiesToNodes)
-        newCommunitiesToNodes = louvain_getCommunities(totalMeasure, newG, Measure, newNodesToCommunities, newCommunitiesToNodes)
+        newCommunitiesToNodes = louvain_getCommunities(newG, startMeasure, Measure, threshold)
         return combineDicts(communitiesToNodes, newCommunitiesToNodes)
     else:
         return {}
