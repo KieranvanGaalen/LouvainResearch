@@ -4,6 +4,7 @@ from typing import List, Dict
 from MeasureInterface import MeasureInterface
 
 class Measure(MeasureInterface):
+    # Get measure difference when node is moved
     def getDelta(self, G : nx.Graph, node : int, newCommunity : int, communitiesToNodes : Dict[int, List[int]], nodesToCommunities : Dict[int, int]) -> float :
         communityInnerEdgeCount = self.communityInnerEdgeCount(G, newCommunity, communitiesToNodes, nodesToCommunities)
         communityOuterEdgeCount = self.communityOuterEdgeCount(G, newCommunity, communitiesToNodes, nodesToCommunities)
@@ -14,14 +15,6 @@ class Measure(MeasureInterface):
 
 
         return (((communityInnerEdgeCount + 2 * nodeInnerEdgeCount) / (2 * len(G.edges))) - (math.pow((communityTotalEdgeCount + nodeTotalEdgeCount) / (2 * len(G.edges)), 2))) - ((communityInnerEdgeCount / (2 * len(G.edges))) - (math.pow((communityTotalEdgeCount) / (2 * len(G.edges)), 2)) - (math.pow((nodeTotalEdgeCount) / (2 * len(G.edges)), 2)))
-
-    def getDelta2(self, G : nx.Graph, node : int, newCommunity : int, communitiesToNodes : Dict[int, List[int]], nodesToCommunities : Dict[int, int]) -> float :
-        communityInnerEdgeCount = self.communityInnerEdgeCount(G, newCommunity, communitiesToNodes, nodesToCommunities)
-        communityOuterEdgeCount = self.communityOuterEdgeCount(G, newCommunity, communitiesToNodes, nodesToCommunities)
-        nodeInnerEdgeCount = self.nodeInnerEdgeCount(G, node, newCommunity, communitiesToNodes, nodesToCommunities)
-        nodeOuterEdgeCount = self.nodeOuterEdgeCount(G, node, newCommunity, communitiesToNodes, nodesToCommunities)
-
-        return nodeInnerEdgeCount - (((communityInnerEdgeCount + communityOuterEdgeCount) * (nodeInnerEdgeCount + nodeOuterEdgeCount)) / (2 * G.number_of_edges()))
 
     def communityInnerEdgeCount(self, G : nx.Graph, community : int, communitiesToNodes : Dict[int, List[int]], nodesToCommunities : Dict[int, int]) -> int :
         nodes = communitiesToNodes[community]
@@ -59,6 +52,7 @@ class Measure(MeasureInterface):
                 edgeCount += 1
         return edgeCount
 
+    # Get the actual measure
     def getTotalMeasure(self, G : nx.Graph, communitiesToNodes : Dict[int, List[int]], nodesToCommunities : Dict[int, int]) -> float : #total measure is modularity here
         result = 0
         for c in communitiesToNodes:

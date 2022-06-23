@@ -4,13 +4,14 @@ from typing import List, Dict
 from MeasureInterface import MeasureInterface
 
 class Measure(MeasureInterface):
+    # Get the actual measure
     def getTotalMeasure(self, G : nx.Graph, communitiesToNodes : Dict[int, List[int]], nodesToCommunities : Dict[int, int]) -> float :
         total = 0
         for nodesInCommunity in communitiesToNodes.values():
             total += self.getMin(G, nodesInCommunity)
         return total
 
-
+    # Get measure difference when node is moved
     def getDelta(self, G : nx.Graph, node : int, newCommunity : int, communitiesToNodes : Dict[int, List[int]], nodesToCommunities : Dict[int, int]) -> float :
         nodesNewCommunity = copy.deepcopy(communitiesToNodes[newCommunity])
         nodesOldCommunity = copy.deepcopy(communitiesToNodes[nodesToCommunities[node]])

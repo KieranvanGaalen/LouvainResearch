@@ -8,7 +8,7 @@ import time
 import os
 import csv
 
-measureToRun = MinIDF
+measureToRun = AverageIDF
 seed = 15
 
 def getCommDict(G : nx.graph) -> Dict[int, int]:

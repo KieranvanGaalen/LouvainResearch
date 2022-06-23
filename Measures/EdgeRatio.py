@@ -3,6 +3,7 @@ from typing import List, Dict
 from MeasureInterface import MeasureInterface
 
 class Measure(MeasureInterface):
+    # Get the actual measure
     def getTotalMeasure(self, G : nx.Graph, communitiesToNodes : Dict[int, List[int]], nodesToCommunities : Dict[int, int]) -> float :
         total = 0
         for comm in communitiesToNodes:
@@ -11,7 +12,7 @@ class Measure(MeasureInterface):
             total += edgeCount/nodeCount
         return total
 
-
+    # Get measure difference when node is moved
     def getDelta(self, G : nx.Graph, node : int, newCommunity : int, communitiesToNodes : Dict[int, List[int]], nodesToCommunities : Dict[int, int]) -> float :
         oldCommunity = nodesToCommunities[node]
         oldNodeCount = len(communitiesToNodes[oldCommunity])
