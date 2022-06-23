@@ -3,7 +3,7 @@ import matplotlib.pyplot as pp
 import networkx as nx
 import math
 from Louvain import *
-from Measures import EdgeRatio, Modularity, FlakeIDF, MinIDF
+from Measures import AverageIDF, EdgeRatio, Modularity, MinIDF
 import time
 import os
 import csv
