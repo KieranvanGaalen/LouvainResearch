@@ -13,7 +13,7 @@ class Measure(MeasureInterface):
 
     def getDelta(self, G : nx.Graph, node : int, newCommunity : int, communitiesToNodes : Dict[int, List[int]], nodesToCommunities : Dict[int, int]) -> float :
         nodesNewCommunity = copy.deepcopy(communitiesToNodes[newCommunity])
-        nodesOldCommunity = copy.deepcopy(communitiesToNodes[newCommunity])
+        nodesOldCommunity = copy.deepcopy(communitiesToNodes[nodesToCommunities[node]])
         oldMaxNewCommunity = self.getMax(G, nodesNewCommunity)
         oldMaxOldCommunity = self.getMax(G, nodesOldCommunity)
         newMaxNewCommunity = self.getMax(G, nodesNewCommunity.append(node))
@@ -24,11 +24,11 @@ class Measure(MeasureInterface):
         max = 0
         for i in communityNodes:
             neighbours = G.neighbors(i)
-            notInCommunity = 0
+            inCommunity = 0
             for j in neighbours:
-                if j not in communityNodes:
-                    notInCommunity += 1
-            fraction = notInCommunity / G.degree(i)
+                if j in communityNodes:
+                    inCommunity += 1
+            fraction = inCommunity / G.degree(i)
             if fraction > max:
                 max = fraction
         return max
