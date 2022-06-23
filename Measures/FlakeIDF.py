@@ -30,7 +30,12 @@ class Measure(MeasureInterface):
             nodeNecessaryInNewCommunity = 1
         if amountInnerEdgesOldCommunity >= G.degree(node) / 2:
             nodeNecessaryInOldCommunity = 1
-        return ((numeratorNewCommunity + nodeNecessaryInNewCommunity) / (len(nodesNewCommunity) + 1) - (numeratorNewCommunity / len(nodesNewCommunity))) + ((numeratorOldCommunity - nodeNecessaryInOldCommunity) / (len(nodesOldCommunity) - 1) - (numeratorOldCommunity / len(nodesOldCommunity)))
+        oldvalue = numeratorNewCommunity / len(nodesNewCommunity) + numeratorOldCommunity / len(nodesOldCommunity)
+        if len(nodesOldCommunity) > 1:
+            newvalue = (numeratorNewCommunity + nodeNecessaryInNewCommunity) / (len(nodesNewCommunity) + 1) + (numeratorOldCommunity - nodeNecessaryInOldCommunity) / (len(nodesOldCommunity) - 1)
+        else:
+            newvalue = (numeratorNewCommunity + nodeNecessaryInNewCommunity) / (len(nodesNewCommunity) + 1)
+        return newvalue - oldvalue
     
     def getNumerator(self, G : nx.Graph, communityNodes : List[int]) -> int :
         counter = 0

@@ -3,12 +3,12 @@ import matplotlib.pyplot as pp
 import networkx as nx
 import math
 from Louvain import *
-from Measures import EdgeRatio, Modularity
+from Measures import EdgeRatio, Modularity, FlakeIDF, MinIDF
 import time
 import os
 import csv
 
-measureToRun = EdgeRatio
+measureToRun = MinIDF
 seed = 15
 
 def getCommDict(G : nx.graph) -> Dict[int, int]:

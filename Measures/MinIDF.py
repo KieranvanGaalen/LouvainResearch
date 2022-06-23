@@ -16,19 +16,24 @@ class Measure(MeasureInterface):
         nodesOldCommunity = copy.deepcopy(communitiesToNodes[nodesToCommunities[node]])
         oldMinNewCommunity = self.getMin(G, nodesNewCommunity)
         oldMinOldCommunity = self.getMin(G, nodesOldCommunity)
-        newMinNewCommunity = self.getMin(G, nodesNewCommunity.append(node))
-        newMinOldCommunity = self.getMin(G, nodesOldCommunity.remove(node))
+        nodesNewCommunity.append(node)
+        nodesOldCommunity.remove(node)
+        newMinNewCommunity = self.getMin(G, nodesNewCommunity)
+        newMinOldCommunity = self.getMin(G, nodesOldCommunity)
         return (newMinNewCommunity - oldMinNewCommunity) + (newMinOldCommunity - oldMinOldCommunity)
     
     def getMin(self, G : nx.Graph, communityNodes : List[int]) -> float :
         min = float('inf')
-        for i in communityNodes:
-            neighbours = G.neighbors(i)
-            inCommunity = 0
-            for j in neighbours:
-                if j in communityNodes:
-                    inCommunity += 1
-            fraction = inCommunity / G.degree(i)
-            if fraction < min:
-                min = fraction
+        if communityNodes:
+            for i in communityNodes:
+                neighbours = G.neighbors(i)
+                inCommunity = 0
+                for j in neighbours:
+                    if j in communityNodes:
+                        inCommunity += 1
+                fraction = inCommunity / G.degree(i)
+                if fraction < min:
+                    min = fraction
+        else:
+            min = 0
         return min

@@ -29,7 +29,7 @@ class Measure(MeasureInterface):
         if oldNodeCount > 1:
             newValue = (oldEdgeCount - nodeOldConnections) / (oldNodeCount - 1) + (newEdgeCount + nodeNewConnections) / (oldNodeCount + 1)
         else: 
-            newValue = (newEdgeCount + nodeNewConnections) / (oldNodeCount + 1)
+            newValue = (newEdgeCount + nodeNewConnections) / (oldNodeCount + 1) 
         return newValue - oldValue
 
     def communityInnerEdgeCount(self, G : nx.Graph, community : int, communitiesToNodes : Dict[int, List[int]], nodesToCommunities : Dict[int, int]) -> int :
