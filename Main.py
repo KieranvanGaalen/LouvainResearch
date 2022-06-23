@@ -11,6 +11,7 @@ import csv
 measureToRun = AverageIDF
 seed = 15
 
+# Get the community dictionary from an LFR generated graph
 def getCommDict(G : nx.graph) -> Dict[int, int]:
     nodeToComm = {}
     commIndex = 0
@@ -22,6 +23,7 @@ def getCommDict(G : nx.graph) -> Dict[int, int]:
             commIndex += 1
     return nodeToComm
 
+# Convert a community to nodes dictionary to a node to community dictionary
 def getNodeToComm(commToNode : Dict[int, List[int]]) -> Dict[int, int]:
     nodeToComm = {}
     for comm in commToNode:
@@ -29,6 +31,7 @@ def getNodeToComm(commToNode : Dict[int, List[int]]) -> Dict[int, int]:
             nodeToComm[node] = comm
     return nodeToComm
 
+# Convert a node to community dictionary to a community to nodes dictionary
 def getCommToNode(nodeToComm : Dict[int, int]) -> Dict[int, List[int]]:
     commToNode = {}
     for node in nodeToComm:
@@ -37,6 +40,7 @@ def getCommToNode(nodeToComm : Dict[int, int]) -> Dict[int, List[int]]:
         commToNode[nodeToComm[node]].append(node)
     return commToNode
 
+# Write the lists with results to .csv
 def writeLists(measureToRun, runTimes : List[float], edgeCounts : List[int], nodeCounts : List[int], groundTruths : List[float], resComms : List[int], correctComms : List[int]):
     dirname = os.path.dirname(__file__)
     splitMeasure = str(measureToRun).split('\\')
@@ -54,6 +58,7 @@ def writeLists(measureToRun, runTimes : List[float], edgeCounts : List[int], nod
         for i in range(len(runTimes)):
             writer.writerow([str(i)] + [str(runTimes[i])] + [str(edgeCounts[i])] + [str(nodeCounts[i])] + [str(groundTruths[i])] + [str(resComms[i])] + [str(correctComms[i])])
 
+# Get the Jaccard index given two node to community dictionaries
 def calculateJaccardIndex(nodesToCommunitiesTrue : Dict[int, int], nodesToCommunitiesFromAlgorithm : Dict[int, int]) -> float :
     a01 = 0
     a10 = 0
