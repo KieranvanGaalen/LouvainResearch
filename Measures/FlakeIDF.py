@@ -36,10 +36,10 @@ class Measure(MeasureInterface):
         counter = 0
         for i in communityNodes:
             neighbours = G.neighbors(i)
-            inCommunity = 0
+            edgesInCommunity = 0
             for j in neighbours:
                 if j in communityNodes:
-                    inCommunity += 1
-            if inCommunity >= G.degree(i) / 2:
+                    edgesInCommunity += 1
+            if edgesInCommunity >= G.degree(i) / 2:
                 counter += 1
         return counter

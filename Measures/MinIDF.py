@@ -7,21 +7,21 @@ class Measure(MeasureInterface):
     def getTotalMeasure(self, G : nx.Graph, communitiesToNodes : Dict[int, List[int]], nodesToCommunities : Dict[int, int]) -> float :
         total = 0
         for nodesInCommunity in communitiesToNodes.values():
-            total += self.getMax(G, nodesInCommunity)
+            total += self.getMin(G, nodesInCommunity)
         return total
 
 
     def getDelta(self, G : nx.Graph, node : int, newCommunity : int, communitiesToNodes : Dict[int, List[int]], nodesToCommunities : Dict[int, int]) -> float :
         nodesNewCommunity = copy.deepcopy(communitiesToNodes[newCommunity])
         nodesOldCommunity = copy.deepcopy(communitiesToNodes[nodesToCommunities[node]])
-        oldMaxNewCommunity = self.getMax(G, nodesNewCommunity)
-        oldMaxOldCommunity = self.getMax(G, nodesOldCommunity)
-        newMaxNewCommunity = self.getMax(G, nodesNewCommunity.append(node))
-        newMaxOldCommunity = self.getMax(G, nodesOldCommunity.remove(node))
-        return (newMaxNewCommunity - oldMaxNewCommunity) + (newMaxOldCommunity - oldMaxOldCommunity)
+        oldMinNewCommunity = self.getMin(G, nodesNewCommunity)
+        oldMinOldCommunity = self.getMin(G, nodesOldCommunity)
+        newMinNewCommunity = self.getMin(G, nodesNewCommunity.append(node))
+        newMinOldCommunity = self.getMin(G, nodesOldCommunity.remove(node))
+        return (newMinNewCommunity - oldMinNewCommunity) + (newMinOldCommunity - oldMinOldCommunity)
     
-    def getMax(self, G : nx.Graph, communityNodes : List[int]) -> float :
-        max = 0
+    def getMin(self, G : nx.Graph, communityNodes : List[int]) -> float :
+        min = float('inf')
         for i in communityNodes:
             neighbours = G.neighbors(i)
             inCommunity = 0
@@ -29,6 +29,6 @@ class Measure(MeasureInterface):
                 if j in communityNodes:
                     inCommunity += 1
             fraction = inCommunity / G.degree(i)
-            if fraction > max:
-                max = fraction
-        return max
+            if fraction < min:
+                min = fraction
+        return min
